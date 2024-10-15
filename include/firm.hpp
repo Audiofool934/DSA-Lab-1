@@ -15,7 +15,7 @@ public:
     virtual std::string getFirmID() const = 0;
     virtual std::string getFirmName() const = 0;
     virtual int getPatentCount() const = 0;
-    virtual void displayPatents() const = 0;
+    virtual void displayPatents(int num) const = 0;
     virtual void addPatent(Patent& patent) = 0;
     virtual void removePatent(const std::string& patentID) = 0;
     virtual const Patent getPatent(const std::string& patentID) const = 0;
@@ -49,11 +49,11 @@ public:
     std::string getFirmName() const override { return firmName; }
     int getPatentCount() const override { return patentCount; }
     
-    void displayPatents() const override {
+    void displayPatents(int num) const override {
         displayTitle();
         auto current = patents.getHead();
         int i = 0;
-        while (current != nullptr && i < 10) {
+        while (current != nullptr && i < num) {
             current->data.display();
             current = current->next;
             i++;
@@ -64,6 +64,7 @@ public:
     void addPatent(Patent& patent) override {
         patent.setFirmID(firmID);
         patents.insert(patent);
+        // 这里其实应该加一个检测重复，如果重复的话，就update
         patentCount++;
     }
 
@@ -101,9 +102,9 @@ public:
     std::string getFirmName() const override { return firmName; }
     int getPatentCount() const override { return patentCount; }
 
-    void displayPatents() const override {
+    void displayPatents(int num) const override {
         displayTitle();
-        for (size_t i = 0; i < patents.size() && i < 10; ++i) {
+        for (size_t i = 0; i < patents.size() && i < num; ++i) {
             patents[i].display();
         }
         displayDots();
@@ -154,11 +155,11 @@ public:
     std::string getFirmName() const override { return firmName; }
     int getPatentCount() const override { return patentCount; }
 
-    void displayPatents() const override {
+    void displayPatents(int num) const override {
         displayTitle();
         int i = 0;
         for (const auto& pair : patents) {
-            if (i >= 10) {
+            if (i >= num) {
                 break;
             }
             pair.second.display();

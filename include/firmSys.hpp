@@ -30,11 +30,12 @@ public:
     virtual void loadApplicantsFromCSV(const std::string& filename) = 0;
     virtual void addApplicantToQueue(const Patent& patent) = 0;
     virtual void processApplicants() = 0;
-    virtual void changeApplicantInfo(Patent& patent) = 0;
+    virtual bool changeApplicantInfo(Patent& patent) = 0;
 
     /* --------------------------------- display -------------------------------- */
     virtual void displayFirm(const std::string& firmID) const = 0;
-    virtual void displayFirms() const = 0;
+    virtual void displayFirmInfo(const std::string& firmID) const = 0;
+    virtual void displayFirms(int mode) const = 0;
     virtual void displayFirmsID() const = 0;
     virtual void displayFirmApplicants(const std::string& firmID) const = 0;
     virtual void displayFirmsAppl() const = 0;
@@ -126,11 +127,20 @@ public:
         if (firm) {
             std::cout << "Firm ID: " << firm->getFirmID() << ", Firm Name: " << firm->getFirmName() << std::endl;
             std::cout << "Number of Patents: " << firm->getPatentCount() << std::endl;
-            firm->displayPatents();
+            firm->displayPatents(50);
             std::cout << "-----------------------------------" << std::endl;
         }
     }
 
+    void displayFirmInfo(const std::string& firmID) const override {
+        auto firm = getFirm(firmID);
+        if (firm) {
+            std::cout << "Firm ID: " << firm->getFirmID() << ", Firm Name: " << firm->getFirmName() << std::endl;
+            std::cout << "Number of Patents: " << firm->getPatentCount() << std::endl;
+            firm->displayPatents(3);
+            std::cout << "-----------------------------------" << std::endl;
+        }
+    }
 };
 
 class FirmSystemVector : public BaseFirmSystem {
@@ -231,14 +241,26 @@ public:
         std::cout << std::endl;
     }
 
-    void displayFirms() const override {
+    void displayFirms(int mode) const override {
         if (fs.size() == 0) {
             std::cout << "No firms available." << std::endl;
             return;
         }
+        switch (mode)
+        {
+        case 1: // detail mode
+            for (const auto& firm : fs) {
+                displayFirm(firm->getFirmID());
+            }
+            break;
 
-        for (const auto& firm : fs) {
-            displayFirm(firm->getFirmID());
+        case 2: // brief mode
+            for (const auto& firm : fs) {
+                displayFirmInfo(firm->getFirmID());
+            }
+            break;
+        default:
+            break;
         }
     }
 };
@@ -249,6 +271,7 @@ private:
     FirmType firmType;
     LinkedListQueue<Patent> applQueue;
     LinkedListStack<std::string> allHistory; // 这个历史记录需要思考，是不是应该保存操作？
+    LinkedListStack<Patent> historyStack;
     LinkedListQueue<Patent> rejQueue;
     LinkedListStack<std::string> rejHistory;
     std::unordered_map<std::string, std::vector<std::string>> firmApplCount;
@@ -385,16 +408,19 @@ public:
     }
 
     void processApplicants() override {
+        // 如何加上撤销操作？
         sortApplicants();
         // applQueue.display();
         while (!applQueue.isEmpty()) {
 
             Patent p = applQueue.pop();
+            pushToHistoryStack(p);
             bool yes = p.getStatus().first;
             int times = p.getStatus().second;
             // std::cout << "Processing: " << p.getPatentID() << "status: " << yes << times << std::endl;
             if (yes) {
                 allHistory.push(p.getPatentID());
+                p.setGrantdate("20241012");
                 addPatentFirm(p.getFirmID(), p);
             }
             else {
@@ -405,10 +431,15 @@ public:
                     rejQueue.push(p);
                 }
                 else {
-                    changeApplicantInfo(p);
+                    displayFirms(2);
+                    if (!changeApplicantInfo(p)) {
+                        addApplicantToQueue(p);
+                        break;
+                    }
                     yes = p.getStatus().first;
                     if (yes) {
                         allHistory.push(p.getPatentID());
+                        p.setGrantdate("20241012");
                         addPatentFirm(p.getFirmID(), p);
                     } else {
                         allHistory.push(p.getPatentID());
@@ -423,8 +454,16 @@ public:
             }
         }
     }
-
-    void changeApplicantInfo(Patent& patent) override {
+    
+    void pushToHistoryStack(const Patent& patent) {
+        if (historyStack.size() >= 3) {
+            historyStack.pop();
+        }
+        historyStack.push(patent);
+    }
+    
+    bool changeApplicantInfo(Patent& patent) override {
+        std::string status;
         displayTitle();
         patent.display();
         // std::cout << "Failed to pass the application. You need to change the apply info: " << std::endl;
@@ -443,11 +482,21 @@ public:
         // std::cout << "Update Country: ";
         // std::cin >> country;
         // Patent patent(patentID, grantdate, appldate, title, country, firmID);
-        std::cout << "set patent status to y/n: ";
-        std::string status;
+        std::cout << "set patent status y/n" << std::endl;
+        std::cout << "enter '0' to exit" << std::endl;
+        // std::cout << "enter 'z' to undo edit" << std::endl;
+        std::cout << "input: ";
         std::cin >> status;
+        if (status == "0") {
+            system("clear");
+            return false;
+        }
+        // if (status == "z") {
+        //     applQueue.push(historyStack.top());
+        // }
         patent.setStatus(cleanString(status) == "y", patent.getStatus().second);
         system("clear");
+        return true;
     }
 
     void displayFirmsID() const override {
@@ -465,14 +514,26 @@ public:
         std::cout << std::endl;
     }
 
-    void displayFirms() const override {
+    void displayFirms(int mode) const override {
         if (fs.empty()) {
             std::cout << "No firms available." << std::endl;
             return;
         }
+        switch (mode)
+        {
+        case 1: // detail mode
+            for (const auto& pair : fs) {
+                displayFirm(pair.first);
+            }
+            break;
 
-        for (const auto& pair : fs) {
-            displayFirm(pair.first);
+        case 2: // brief mode
+            for (const auto& pair : fs) {
+                displayFirmInfo(pair.first);
+            }
+            break;
+        default:
+            break;
         }
     }
 
@@ -489,7 +550,6 @@ public:
             } else {
                 std::cerr << "Firm not found in firmApplCount." << std::endl;
             }
-            std::cout << "-----------------------------------" << std::endl;
         } else {
             std::cerr << "Firm not found." << std::endl;
         }

@@ -153,7 +153,7 @@ int main() {
             }
             case 5: {
                 system("clear");
-                firmSystem->displayFirms();
+                firmSystem->displayFirms(1);
                 break;
             }
             case 6: {

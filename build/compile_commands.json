@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/audiofool/Desktop/Projects/DSA-Lab/build",
+  "command": "/usr/bin/clang++  -I/Users/audiofool/Desktop/Projects/DSA-Lab/include -I/Users/audiofool/Desktop/Projects/DSA-Lab/data -I/Users/audiofool/Desktop/Projects/DSA-Lab/templates -g -std=gnu++11 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk -o CMakeFiles/patent_system.dir/src/main.cpp.o -c /Users/audiofool/Desktop/Projects/DSA-Lab/src/main.cpp",
+  "file": "/Users/audiofool/Desktop/Projects/DSA-Lab/src/main.cpp",
+  "output": "CMakeFiles/patent_system.dir/src/main.cpp.o"
+}
+]

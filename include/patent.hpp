@@ -2,10 +2,9 @@
 #define PATENT_HPP
 
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <unordered_map>
 #include <list>
+#include "utils.hpp"
 #include "template/linked_list_template.hpp"
 #include "template/vector_template.hpp"
 
@@ -65,32 +64,6 @@ public:
 std::ostream& operator<<(std::ostream& os, const Patent& patent) {
     os << "PatentID: " << patent.getPatentID();
     return os;
-}
-
-void displayTitle() {
-    std::cout << std::left
-            << std::setw(10) << "PatentID"
-            << std::setw(13) << "Grant Date"
-            << std::setw(13) << "Appl Date"
-            << std::setw(30) << "Title"
-            << std::setw(10) << "Country"
-            << std::setw(10) << "FirmID"
-            << std::endl;
-
-    std::cout << std::string(80, '-') << std::endl;
-}
-
-void displayDots() {
-    std::cout << std::left
-            << std::setw(10) << "..."
-            << std::setw(13) << "..."
-            << std::setw(13) << "..."
-            << std::setw(30) << "..."
-            << std::setw(10) << "..."
-            << std::setw(10) << "..."
-            << std::endl;
-
-    std::cout << std::string(80, '-') << std::endl;
 }
 
 #endif

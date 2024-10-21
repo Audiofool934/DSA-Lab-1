@@ -73,15 +73,15 @@ CMakeFiles/patent_system.dir/src/main.cpp.o: CMakeFiles/patent_system.dir/flags.
 CMakeFiles/patent_system.dir/src/main.cpp.o: /Users/audiofool/Desktop/Projects/DSA-Lab/src/main.cpp
 CMakeFiles/patent_system.dir/src/main.cpp.o: CMakeFiles/patent_system.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/audiofool/Desktop/Projects/DSA-Lab/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/patent_system.dir/src/main.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/patent_system.dir/src/main.cpp.o -MF CMakeFiles/patent_system.dir/src/main.cpp.o.d -o CMakeFiles/patent_system.dir/src/main.cpp.o -c /Users/audiofool/Desktop/Projects/DSA-Lab/src/main.cpp
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/patent_system.dir/src/main.cpp.o -MF CMakeFiles/patent_system.dir/src/main.cpp.o.d -o CMakeFiles/patent_system.dir/src/main.cpp.o -c /Users/audiofool/Desktop/Projects/DSA-Lab/src/main.cpp
 
 CMakeFiles/patent_system.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/patent_system.dir/src/main.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/audiofool/Desktop/Projects/DSA-Lab/src/main.cpp > CMakeFiles/patent_system.dir/src/main.cpp.i
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/audiofool/Desktop/Projects/DSA-Lab/src/main.cpp > CMakeFiles/patent_system.dir/src/main.cpp.i
 
 CMakeFiles/patent_system.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/patent_system.dir/src/main.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/audiofool/Desktop/Projects/DSA-Lab/src/main.cpp -o CMakeFiles/patent_system.dir/src/main.cpp.s
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/audiofool/Desktop/Projects/DSA-Lab/src/main.cpp -o CMakeFiles/patent_system.dir/src/main.cpp.s
 
 # Object files for target patent_system
 patent_system_OBJECTS = \

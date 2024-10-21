@@ -38,6 +38,8 @@ void printMenu() {
 int main() {
     FirmType firmType;
     int typeChoice;
+    
+    system("clear");
 
     std::cout << "Select the Firm(Patents) Data Structure to use:" << std::endl;
     std::cout << "1. LinkedList" << std::endl;
@@ -89,7 +91,9 @@ int main() {
     firmSystem->loadPatentsFromCSV(filename);
     filename="../data/patent2.csv";
     firmSystem->loadApplicantsFromCSV(filename);
-    
+
+    system("clear");
+
     int choice;
     do {
         printMenu();
@@ -102,6 +106,9 @@ int main() {
                 firmSystem->displayFirmsID();
                 std::cout << "Enter Firm ID to add Patent to: ";
                 std::cin >> firmID;
+                if (!firmSystem->getFirm(firmID)) {
+                    break;
+                };
                 std::cout << "Enter Patent ID: ";
                 std::cin >> patentID;
                 std::cout << "Enter Grant Date: ";
@@ -115,14 +122,17 @@ int main() {
                 std::cin >> country;
                 Patent patent(patentID, grantdate, appldate, title, country, firmID);
                 firmSystem->addPatentFirm(firmID, patent);
-                std::cout << "Patent added successfully." << std::endl;
                 break;
             }
             case 2: {
                 system("clear");
                 std::string firmID, patentID;
+                firmSystem->displayFirmsID();
                 std::cout << "Enter Firm ID to remove Patent from: ";
                 std::cin >> firmID;
+                if (!firmSystem->getFirm(firmID)) {
+                    break;
+                };
                 std::cout << "Enter Patent ID: ";
                 std::cin >> patentID;
                 firmSystem->removePatentFirm(firmID, patentID);
@@ -131,11 +141,18 @@ int main() {
             }
             case 3: {
                 system("clear");
+                firmSystem->displayFirmsID();
                 std::string fromFirmID, toFirmID, patentID;
                 std::cout << "Enter Source Firm ID: ";
                 std::cin >> fromFirmID;
+                if (!firmSystem->getFirm(fromFirmID)) {
+                    break;
+                };
                 std::cout << "Enter Destination Firm ID: ";
                 std::cin >> toFirmID;
+                if (!firmSystem->getFirm(toFirmID)) {
+                    break;
+                };
                 std::cout << "Enter Patent ID to transfer: ";
                 std::cin >> patentID;
                 firmSystem->transferPatent(fromFirmID, toFirmID, patentID);
@@ -168,6 +185,7 @@ int main() {
             }
             case 7: {
                 system("clear");
+                firmSystem->displayFirmsID();
                 std::string firmID;
                 std::cout << "Enter Firm ID to remove: ";
                 std::cin >> firmID;
@@ -177,7 +195,7 @@ int main() {
             case 8: {
                 system("clear");
                 firmSystem->processApplicants();
-                // 之类应该支持暂停
+                // 这里应该支持暂停
                 break;
             }
             case 9: {

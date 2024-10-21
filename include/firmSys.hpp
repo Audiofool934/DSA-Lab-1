@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <list>
 #include "firm.hpp"
+#include "utils.hpp"
 #include "template/stack_template.hpp"
 #include "template/queue_template.hpp"
 #include "template/linked_list_template.hpp"
@@ -125,6 +126,7 @@ public:
     void displayFirm(const std::string& firmID) const override {
         auto firm = getFirm(firmID);
         if (firm) {
+            displayLine(2);
             std::cout << "Firm ID: " << firm->getFirmID() << ", Firm Name: " << firm->getFirmName() << std::endl;
             std::cout << "Number of Patents: " << firm->getPatentCount() << std::endl;
             firm->displayPatents(50);
@@ -135,10 +137,10 @@ public:
     void displayFirmInfo(const std::string& firmID) const override {
         auto firm = getFirm(firmID);
         if (firm) {
+            displayLine(2);
             std::cout << "Firm ID: " << firm->getFirmID() << ", Firm Name: " << firm->getFirmName() << std::endl;
             std::cout << "Number of Patents: " << firm->getPatentCount() << std::endl;
             firm->displayPatents(3);
-            std::cout << "-----------------------------------" << std::endl;
         }
     }
 };
@@ -235,8 +237,7 @@ public:
         }
 
         for (const auto& firm : fs) {
-            std::cout << firm->getFirmName() << "  ";
-            std::cout << firm->getFirmID() << "\n";
+            std::cout << firm->getFirmName() << "  "<< firm->getFirmID() << std::endl;
         }
         std::cout << std::endl;
     }
@@ -316,6 +317,7 @@ public:
         auto it = fs.find(firmID);
         if (it != fs.end()) {
             it->second->addPatent(patent);
+            std::cout << "Patent | " << patent.getPatentID() << " | added successfully." << std::endl;
         } else {
             std::cerr << "Firm not found." << std::endl;
         }
@@ -414,7 +416,7 @@ public:
         while (!applQueue.isEmpty()) {
 
             Patent p = applQueue.pop();
-            pushToHistoryStack(p);
+            // pushToHistoryStack(p);
             bool yes = p.getStatus().first;
             int times = p.getStatus().second;
             // std::cout << "Processing: " << p.getPatentID() << "status: " << yes << times << std::endl;
@@ -422,6 +424,10 @@ public:
                 allHistory.push(p.getPatentID());
                 p.setGrantdate("20241012");
                 addPatentFirm(p.getFirmID(), p);
+
+                // 维护 firmApplCount
+                auto& applList = firmApplCount[p.getFirmID()];
+                applList.erase(std::remove(applList.begin(), applList.end(), p.getPatentID()), applList.end());
             }
             else {
                 if (times < 1) {
@@ -441,6 +447,10 @@ public:
                         allHistory.push(p.getPatentID());
                         p.setGrantdate("20241012");
                         addPatentFirm(p.getFirmID(), p);
+                        
+                        // 维护 firmApplCount
+                        auto& applList = firmApplCount[p.getFirmID()];
+                        applList.erase(std::remove(applList.begin(), applList.end(), p.getPatentID()), applList.end());
                     } else {
                         allHistory.push(p.getPatentID());
                         rejHistory.push(p.getPatentID());
@@ -464,6 +474,8 @@ public:
     
     bool changeApplicantInfo(Patent& patent) override {
         std::string status;
+        std::cout << std::endl;
+        displayLine(2);
         displayTitle();
         patent.display();
         // std::cout << "Failed to pass the application. You need to change the apply info: " << std::endl;
@@ -500,16 +512,12 @@ public:
     }
 
     void displayFirmsID() const override {
-        if (fs.empty() == 0) {
+        if (fs.empty()) {
             std::cout << "No firms available." << std::endl;
             return;
         }
         for (const auto& pair : fs) {
-            std::cout << pair.second->getFirmName() << "  ";
-        }
-        std::cout << std::endl;
-        for (const auto& pair : fs) {
-            std::cout << pair.first << "  ";
+            std::cout << pair.second->getFirmName() << ": " << pair.first << std::endl;
         }
         std::cout << std::endl;
     }
@@ -540,6 +548,7 @@ public:
     void displayFirmApplicants(const std::string& firmID) const override {
         auto it = fs.find(firmID);
         if (it != fs.end()) {
+            displayLine(2);
             std::cout << "Firm ID: " << it->second->getFirmID() << ", Firm Name: " << it->second->getFirmName() << std::endl;
             std::cout << "Number of Patents: " << it->second->getPatentCount() << std::endl;
             // it->second->displayPatents();

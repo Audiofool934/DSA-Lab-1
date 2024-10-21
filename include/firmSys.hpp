@@ -414,7 +414,6 @@ public:
         sortApplicants();
         // applQueue.display();
         while (!applQueue.isEmpty()) {
-
             Patent p = applQueue.pop();
             // pushToHistoryStack(p);
             bool yes = p.getStatus().first;
@@ -447,7 +446,7 @@ public:
                         allHistory.push(p.getPatentID());
                         p.setGrantdate("20241012");
                         addPatentFirm(p.getFirmID(), p);
-                        
+
                         // 维护 firmApplCount
                         auto& applList = firmApplCount[p.getFirmID()];
                         applList.erase(std::remove(applList.begin(), applList.end(), p.getPatentID()), applList.end());

@@ -26,6 +26,7 @@ public:
     virtual void addPatentFirm(const std::string& firmID, Patent& patent) = 0;
     virtual void removePatentFirm(const std::string& firmID, const std::string& patentID) = 0;
     virtual void transferPatent(const std::string& fromFirmID, const std::string& toFirmID, const std::string& patentID) = 0;
+    virtual void searchPatentFirms(const std::string& keyword) = 0;
 
     /* --------------------------- patents application -------------------------- */
     virtual void loadApplicantsFromCSV(const std::string& filename) = 0;
@@ -47,19 +48,6 @@ public:
 
 class BaseFirmSystem : public IFirmSystem {
 public:
-    std::string cleanString(const std::string& input) {
-        std::string cleaned = input;
-
-        cleaned.erase(cleaned.begin(), std::find_if(cleaned.begin(), cleaned.end(), [](unsigned char c) {
-            return !std::isspace(c);
-        }));
-
-        cleaned.erase(std::find_if(cleaned.rbegin(), cleaned.rend(), [](unsigned char c) {
-            return !std::isspace(c);
-        }).base(), cleaned.end());
-
-        return cleaned;
-    }
  
     void loadFirms(const std::string& filename) override {
         
@@ -100,24 +88,36 @@ public:
         while (getline(file, line)) {
             std::stringstream ss(line);
             std::getline(ss, patentID, ',');
-            std::getline(ss, grantdate, ',');
-            std::getline(ss, appldate, ',');
+            // std::getline(ss, grantdate, ',');
+            // std::getline(ss, appldate, ',');
 
-            if (line.find('"') != std::string::npos) {
-                getline(ss, patent_title, '"');
-                getline(ss, patent_title, '"');
-                ss.ignore();
-            } else {
-                getline(ss, patent_title, ',');
-            }
+            getline(ss, patent_title, ',');
 
             // alter for patent1.csv
             // getline(ss, country, ',');
-            getline(ss, firmID, ',');
 
-            firmID = cleanString(firmID);
-            Patent p(patentID, grantdate, appldate, patent_title, country, firmID);
-            addPatentFirm(firmID, p);
+            std::vector<std::string> firmIDs;
+            
+            if (line.find('"') != std::string::npos) {
+                getline(ss, firmID, '"');
+                getline(ss, firmID, '"');
+                ss.ignore();
+                std::stringstream firmIDStream(firmID);
+                std::string singleFirmID;
+                while (getline(firmIDStream, singleFirmID, ',')) {
+                    firmIDs.push_back(cleanString(singleFirmID));
+                }
+            } else {
+                getline(ss, firmID, ',');
+                firmID = cleanString(firmID);
+                std::cout << "firmID: " << firmID << std::endl;
+                firmIDs.push_back(firmID);
+            }
+
+            for (const auto& firmID : firmIDs) {
+                Patent p(patentID, grantdate, appldate, patent_title, country, firmID);
+                addPatentFirm(firmID, p);
+            }
         }
 
         file.close();
@@ -320,6 +320,9 @@ public:
             std::cout << "Patent | " << patent.getPatentID() << " | added successfully." << std::endl;
         } else {
             std::cerr << "Firm not found." << std::endl;
+            std::cerr << "Add new firm to Firm System, new FirmID: " << firmID << std::endl;
+            addFirm(firmID, "New Firm");
+            addPatentFirm(firmID, patent);
         }
     }
 
@@ -509,6 +512,21 @@ public:
         system("clear");
         return true;
     }
+
+    void searchPatentFirms(const std::string& keyword) override {
+        for (const auto& pair : fs) {
+            std::vector<Patent> results = pair.second->searchPatent(keyword);
+            if (results.size() > 0) {
+                displayLine(2);
+                std::cout << "Firm ID: " << pair.second->getFirmID() << std::endl;
+                std::cout << "Number of Patents: " << results.size() << std::endl;
+                displayTitle();
+                for (const auto& patent : results) {
+                    patent.display();
+                }
+            }
+        }
+    }    
 
     void displayFirmsID() const override {
         if (fs.empty()) {

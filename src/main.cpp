@@ -29,7 +29,14 @@ void printMenu() {
     std::cout << "                GRANT                " << std::endl;
     std::cout << "8. Start patent granting pipeline" << std::endl;
     std::cout << "9. Display firms' desired patents" << std::endl;
+    std::cout << "-------------------------------------" << std::endl;
 
+    std::cout << "                 NEW                 " << std::endl;
+    std::cout << "10. Search Patent Firms" << std::endl;
+
+
+
+    std::cout << "-------------------------------------" << std::endl;
     std::cout << "0. Exit" << std::endl;
     std::cout << "=====================================" << std::endl;
     std::cout << "Select an option: ";
@@ -86,11 +93,11 @@ int main() {
     system("clear");
 
     std::string filename="../data/FirmData.csv";
-    firmSystem->loadFirms(filename);
-    filename="../data/patent1.csv";
+    // firmSystem->loadFirms(filename);
+    filename="../data/FirmPatent.csv";
     firmSystem->loadPatentsFromCSV(filename);
-    filename="../data/patent2.csv";
-    firmSystem->loadApplicantsFromCSV(filename);
+    // filename="../data/patent2.csv";
+    // firmSystem->loadApplicantsFromCSV(filename);
 
     system("clear");
 
@@ -201,6 +208,16 @@ int main() {
             case 9: {
                 system("clear");
                 firmSystem->displayFirmsAppl();
+                break;
+            }
+            case 10: {
+                system("clear");
+                std::string keyword;
+                std::cout << "Enter keyword to search: ";
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::getline(std::cin, keyword);
+                keyword = cleanString(keyword);
+                firmSystem->searchPatentFirms(keyword);
                 break;
             }
             case 0: {

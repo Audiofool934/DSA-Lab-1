@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <list>
 #include "patent.hpp"
+#include "utils.hpp"
 #include "template/linked_list_template.hpp"
 #include "template/vector_template.hpp"
 
@@ -19,6 +20,7 @@ public:
     virtual void addPatent(Patent& patent) = 0;
     virtual void removePatent(const std::string& patentID) = 0;
     virtual const Patent getPatent(const std::string& patentID) const = 0;
+    virtual std::vector<Patent> searchPatent(const std::string& keyword) const = 0;
     virtual ~IFirm() {}
 };
 
@@ -83,6 +85,18 @@ public:
         return patents.find_and_return(tempPatent);
     }
 
+    std::vector<Patent> searchPatent(const std::string& keyword) const override {
+        std::vector<Patent> results;
+        for (auto current = patents.getHead(); current != nullptr; current = current->next) {
+            Patent p = current->data;
+            std::cout << p.getTitle() << std::endl;
+            if (matchKMP(keyword, p.getTitle()) != -1) {
+                results.push_back(p);
+            }
+        }
+        return results;
+    }
+
     ~FirmLinkedList() = default;
 };
 
@@ -134,6 +148,16 @@ public:
             }
         }
         throw std::invalid_argument("Patent not found");
+    }
+
+    std::vector<Patent> searchPatent(const std::string& keyword) const override {
+        std::vector<Patent> results;
+        for (size_t i = 0; i < patents.size(); ++i) {
+            if (matchKMP(keyword, patents[i].getTitle()) != -1) {
+                results.push_back(patents[i]);
+            }
+        }
+        return results;
     }
 
     ~FirmVector() = default;
@@ -189,6 +213,16 @@ public:
             return it->second;
         }
         throw std::invalid_argument("Patent not found");
+    }
+
+    std::vector<Patent> searchPatent(const std::string& keyword) const override {
+        std::vector<Patent> results;
+        for (const auto& pair : patents) {
+            if (matchKMP(keyword, pair.second.getTitle()) != -1) {
+                results.push_back(pair.second);
+            }
+        }
+        return results;
     }
 
     ~FirmUnorderedMap() = default;

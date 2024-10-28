@@ -92,4 +92,16 @@ int matchKMP(const std::string& P, const std::string& T) {
     return (j == m) ? (i - j) : -1; // 匹配成功则返回起始位置，否则返回 -1
 }
 
+
+void displayMatrix(const std::vector<std::vector<int>>& matrix) {
+    displayLine(1);
+    for (const auto& row : matrix) {
+        for (const auto& col : row) {
+            std::cout << col << " ";
+        }
+        std::cout << std::endl;
+    }
+    displayLine(1);
+}
+
 #endif

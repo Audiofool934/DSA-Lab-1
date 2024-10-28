@@ -15,19 +15,21 @@ class IFirm {
 public:
     virtual std::string getFirmID() const = 0;
     virtual std::string getFirmName() const = 0;
+    
     virtual int getPatentCount() const = 0;
     virtual void displayPatents(int num) const = 0;
     virtual void addPatent(Patent& patent) = 0;
     virtual void removePatent(const std::string& patentID) = 0;
     virtual const Patent getPatent(const std::string& patentID) const = 0;
     virtual std::vector<Patent> searchPatent(const std::string& keyword) const = 0;
+    virtual std::vector<Patent> toVector() const = 0;
     virtual ~IFirm() {}
 };
 
 enum class FirmType {
     LinkedList,
     Vector,
-    UnorderedMap
+    Map
 };
 
 class BaseFirm : public IFirm {
@@ -97,6 +99,14 @@ public:
         return results;
     }
 
+    std::vector<Patent> toVector() const override {
+        std::vector<Patent> res;
+        for (auto current = patents.getHead(); current != nullptr; current = current->next) {
+            res.push_back(current->data);
+        }
+        return res;
+    }
+
     ~FirmLinkedList() = default;
 };
 
@@ -159,11 +169,19 @@ public:
         }
         return results;
     }
+    
+    virtual std::vector<Patent> toVector() const override {
+        std::vector<Patent> res;
+        for (size_t i = 0; i < patents.size(); ++i) {
+            res.push_back(patents[i]);
+        }
+        return res;
+    }
 
     ~FirmVector() = default;
 };
 
-class FirmUnorderedMap : public IFirm {
+class FirmMap : public IFirm {
 private:
     std::string firmID;
     std::string firmName;
@@ -171,9 +189,9 @@ private:
     std::unordered_map<std::string, Patent> patents;
 
 public:
-    FirmUnorderedMap() : patentCount(0) {}
+    FirmMap() : patentCount(0) {}
 
-    FirmUnorderedMap(std::string firmID, std::string firmName) : firmID(firmID), firmName(firmName), patentCount(0) {}
+    FirmMap(std::string firmID, std::string firmName) : firmID(firmID), firmName(firmName), patentCount(0) {}
 
     std::string getFirmID() const override { return firmID; }
     std::string getFirmName() const override { return firmName; }
@@ -225,7 +243,15 @@ public:
         return results;
     }
 
-    ~FirmUnorderedMap() = default;
+    std::vector<Patent> toVector() const override {
+        std::vector<Patent> res;
+        for (const auto& pair : patents) {
+            res.push_back(pair.second);
+        }
+        return res;
+    }
+
+    ~FirmMap() = default;
 };
 
 #endif

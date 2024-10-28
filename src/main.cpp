@@ -3,6 +3,7 @@
 #include <sstream>
 #include <memory>
 #include <limits>
+#include <map>
 #include "firm.hpp"
 #include "firmSys.hpp"
 #include "./template/linked_list_template.hpp"
@@ -33,7 +34,7 @@ void printMenu() {
 
     std::cout << "                 NEW                 " << std::endl;
     std::cout << "10. Search Patent Firms" << std::endl;
-
+    std::cout << "11. Display Firms-Patents Matrix" << std::endl;
 
 
     std::cout << "-------------------------------------" << std::endl;
@@ -51,7 +52,7 @@ int main() {
     std::cout << "Select the Firm(Patents) Data Structure to use:" << std::endl;
     std::cout << "1. LinkedList" << std::endl;
     std::cout << "2. Vector" << std::endl;
-    std::cout << "3. UnorderedMap" << std::endl;
+    std::cout << "3. Map" << std::endl;
     std::cout << "Enter choice: ";
     std::cin >> typeChoice;
 
@@ -63,17 +64,17 @@ int main() {
             firmType = FirmType::Vector;
             break;
         case 3:
-            firmType = FirmType::UnorderedMap;
+            firmType = FirmType::Map;
             break;
         default:
-            std::cerr << "Invalid choice. Defaulting to UnorderedMap." << std::endl;
-            firmType = FirmType::UnorderedMap;
+            std::cerr << "Invalid choice. Defaulting to Map." << std::endl;
+            firmType = FirmType::Map;
     }
 
     // std::shared_ptr<IFirmSystem> firmSystem;
     // std::cout << "Select the Firm System Data Structure to use:" << std::endl;
     // std::cout << "1. Vector" << std::endl;
-    // std::cout << "2. UnorderedMap" << std::endl;
+    // std::cout << "2. Map" << std::endl;
     // std::cout << "Enter choice: ";
     // std::cin >> typeChoice;
 
@@ -82,14 +83,14 @@ int main() {
     //         firmSystem = std::make_shared<FirmSystemVector>(firmType);
     //         break;
     //     case 2:
-    //         firmSystem = std::make_shared<FirmSystemUnorderedMap>(firmType);
+    //         firmSystem = std::make_shared<FirmSystemMap>(firmType);
     //         break;
     //     default:
-    //         std::cerr << "Invalid choice. Defaulting to UnorderedMap." << std::endl;
-    //         firmSystem = std::make_shared<FirmSystemUnorderedMap>(firmType);
+    //         std::cerr << "Invalid choice. Defaulting to Map." << std::endl;
+    //         firmSystem = std::make_shared<FirmSystemMap>(firmType);
     // }
 
-    std::shared_ptr<IFirmSystem> firmSystem = std::make_shared<FirmSystemUnorderedMap>(firmType);
+    std::shared_ptr<IFirmSystem> firmSystem = std::make_shared<FirmSystemMap>(firmType);
     system("clear");
 
     std::string filename="../data/FirmData.csv";
@@ -218,6 +219,11 @@ int main() {
                 std::getline(std::cin, keyword);
                 keyword = cleanString(keyword);
                 firmSystem->searchPatentFirms(keyword);
+                break;
+            }
+            case 11: {
+                system("clear");
+                firmSystem->toMatrix();
                 break;
             }
             case 0: {

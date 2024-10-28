@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <unordered_map>
+#include <map>
 #include <list>
 #include "firm.hpp"
 #include "utils.hpp"
@@ -12,6 +12,7 @@
 #include "template/queue_template.hpp"
 #include "template/linked_list_template.hpp"
 #include "template/vector_template.hpp"
+#include "template/matrix_template.hpp"
 
 class IFirmSystem {
 public:
@@ -33,6 +34,9 @@ public:
     virtual void addApplicantToQueue(const Patent& patent) = 0;
     virtual void processApplicants() = 0;
     virtual bool changeApplicantInfo(Patent& patent) = 0;
+
+    /* --------------------------------- matrix --------------------------------- */
+    virtual std::vector<std::vector<int>> toMatrix() = 0;
 
     /* --------------------------------- display -------------------------------- */
     virtual void displayFirm(const std::string& firmID) const = 0;
@@ -161,8 +165,8 @@ public:
             case FirmType::Vector:
                 firm = std::make_shared<FirmVector>(firmID, firmName);
                 break;
-            case FirmType::UnorderedMap:
-                firm = std::make_shared<FirmUnorderedMap>(firmID, firmName);
+            case FirmType::Map:
+                firm = std::make_shared<FirmMap>(firmID, firmName);
                 break;
         }
         fs.push_back(firm);
@@ -266,7 +270,7 @@ public:
     }
 };
 
-class FirmSystemUnorderedMap : public BaseFirmSystem {
+class FirmSystemMap : public BaseFirmSystem {
 private:
     std::unordered_map<std::string, std::shared_ptr<IFirm>> fs;
     FirmType firmType;
@@ -278,7 +282,7 @@ private:
     std::unordered_map<std::string, std::vector<std::string>> firmApplCount;
 
 public:
-    FirmSystemUnorderedMap(FirmType type) 
+    FirmSystemMap(FirmType type) 
         : firmType(type), 
           applQueue(), 
           allHistory(), 
@@ -295,8 +299,8 @@ public:
             case FirmType::Vector:
                 firm = std::make_shared<FirmVector>(firmID, firmName);
                 break;
-            case FirmType::UnorderedMap:
-                firm = std::make_shared<FirmUnorderedMap>(firmID, firmName);
+            case FirmType::Map:
+                firm = std::make_shared<FirmMap>(firmID, firmName);
                 break;
         }
         fs[firmID] = firm;
@@ -527,6 +531,60 @@ public:
             }
         }
     }    
+
+    std::vector<std::vector<int>> toMatrix() override {
+        // Create a matrix to represent relationships between firms and patents.
+        // The matrix will have rows representing firms and columns representing patents.
+        // For simplicity, the value at matrix[i][j] will be 1 if firm i has patent j, otherwise 0.
+
+        // Step 1: Create maps to assign index to firm and patent IDs.
+        std::map<std::string, int> firmIndexMap;
+        std::map<std::string, int> patentIndexMap;
+
+        int firmIndex = 0;
+        int patentIndex = 0;
+
+        // Step 2: Assign an index to each firm, ensuring firms are ordered by their IDs.
+        for (const auto& pair : fs) {
+            firmIndexMap[pair.first] = firmIndex++;
+        }
+
+        // Step 3: Assign an index to each unique patent ID, ensuring patents are ordered by their IDs.
+        for (const auto& pair : fs) {
+            const auto& firm = pair.second;
+            const auto& patents = firm->toVector();
+            for (const auto& patent : patents) {
+                if (patentIndexMap.find(patent.getPatentID()) == patentIndexMap.end()) {
+                    patentIndexMap[patent.getPatentID()] = patentIndex++;
+                }
+            }
+        }
+
+        // Step 4: Initialize the matrix with zeros.
+        std::vector<std::vector<int>> matrix(firmIndexMap.size(), std::vector<int>(patentIndexMap.size(), 0));
+
+        // Step 5: Fill the matrix with relationships.
+        for (const auto& pair : fs) {
+            int rowIndex = firmIndexMap[pair.first];
+            const auto& firm = pair.second;
+            const auto& patents = firm->toVector();
+            for (const auto& patent : patents) {
+                int columnIndex = patentIndexMap[patent.getPatentID()];
+                matrix[rowIndex][columnIndex] = 1;
+            }
+        }
+
+        // Step 6: Print the matrix.
+        std::cout << "Matrix representation of firms and patents:" << std::endl;
+        for (const auto& row : matrix) {
+            for (const auto& val : row) {
+                std::cout << val << " ";
+            }
+            std::cout << std::endl;
+        }
+
+        return matrix;
+    }
 
     void displayFirmsID() const override {
         if (fs.empty()) {

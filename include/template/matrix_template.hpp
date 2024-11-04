@@ -18,9 +18,10 @@ private:
     void insertNode(int row, int col, T value);
 
 public:
+    OrthList(); // Default constructor
     OrthList(const vector<vector<T>> &inArray);
     ~OrthList();
-    void transposeMatrix();
+    OrthList<T> transpose();
     OrthList<T> multiplyMatrix(const OrthList<T>& mat);
     vector<vector<T>> transformTo2DArray();
     void printMatrix();
@@ -28,6 +29,11 @@ public:
 };
 
 /* ------------------------------- 二维数组->十字链表 ------------------------------- */
+
+template<typename T>
+OrthList<T>::OrthList() : rowDummy(0), colDummy(0) {
+    // Default constructor implementation
+}
 
 template<typename T>
 OrthList<T>::OrthList(const vector<vector<T>>& inArray) : rowDummy(inArray.size()), colDummy(inArray.size() > 0 ? inArray[0].size() : 0) {
@@ -40,7 +46,7 @@ OrthList<T>::OrthList(const vector<vector<T>>& inArray) : rowDummy(inArray.size(
             }
         }
     }
-} 
+}
 
 template<typename T>
 void OrthList<T>::insertNode(int row, int col, T value) {
@@ -68,25 +74,41 @@ void OrthList<T>::insertNode(int row, int col, T value) {
 
 /* ---------------------------------- 矩阵转置 ---------------------------------- */
 
+// template<typename T>
+// void OrthList<T>::transposeMatrix() {
+//     OrthAtom* cycleIter = nullptr; // 遍历迭代器
+//     for (int i = 0; i < int(rowDummy.size()); i++) {
+//         cycleIter = rowDummy[i].rowNext;
+//         while (cycleIter != nullptr) {
+//             OrthAtom* tmp = cycleIter;
+//             cycleIter = cycleIter->rowNext;
+//             // 交换下标和指针
+//             std::swap(tmp->row, tmp->col);
+//             std::swap(tmp->rowNext, tmp->colNext);
+//         }
+//         // 新的列指针指向原行的第一个非零元素
+//         std::swap(rowDummy[i].rowNext, rowDummy[i].colNext);
+//     }
+
+//     for (int i = 0; i < int(colDummy.size()); i++) {
+//         std::swap(colDummy[i].rowNext, colDummy[i].colNext);
+//     }
+// }
 template<typename T>
-void OrthList<T>::transposeMatrix() {
-    OrthAtom* cycleIter = nullptr; // 遍历迭代器
+OrthList<T> OrthList<T>::transpose() {
+    OrthList<T> transposedMatrix;
+    transposedMatrix.rowDummy.resize(colDummy.size());
+    transposedMatrix.colDummy.resize(rowDummy.size());
+
     for (int i = 0; i < int(rowDummy.size()); i++) {
-        cycleIter = rowDummy[i].rowNext;
+        OrthAtom* cycleIter = rowDummy[i].rowNext;
         while (cycleIter != nullptr) {
-            OrthAtom* tmp = cycleIter;
+            transposedMatrix.insertNode(cycleIter->col, cycleIter->row, cycleIter->ele);
             cycleIter = cycleIter->rowNext;
-            // 交换下标和指针
-            swap(tmp->row, tmp->col);
-            swap(tmp->rowNext, tmp->colNext);
         }
-        // 新的列指针指向原行的第一个非零元素
-        swap(rowDummy[i].rowNext, rowDummy[i].colNext);
     }
 
-    for (int i = 0; i < int(colDummy.size()); i++) {
-        swap(colDummy[i].rowNext, colDummy[i].colNext);
-    }
+    return transposedMatrix;
 }
 
 /* ---------------------------------- 矩阵相乘 ---------------------------------- */

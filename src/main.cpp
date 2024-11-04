@@ -35,7 +35,7 @@ void printMenu() {
     std::cout << "                 NEW                 " << std::endl;
     std::cout << "10. Search Patent Firms" << std::endl;
     std::cout << "11. Display Firms-Patents Matrix" << std::endl;
-
+    std::cout << "12. Find Common Patents Between Firms (execute 11 first)" << std::endl;
 
     std::cout << "-------------------------------------" << std::endl;
     std::cout << "0. Exit" << std::endl;
@@ -223,7 +223,18 @@ int main() {
             }
             case 11: {
                 system("clear");
-                firmSystem->toMatrix();
+                firmSystem->toSparseMatrix();
+                break;
+            }
+            case 12: {
+                system("clear");
+                firmSystem->displayFirmsID();
+                std::string firmID1, firmID2;
+                std::cout << "Firm ID 1: ";
+                std::cin >> firmID1;
+                std::cout << "Firm ID 2: ";
+                std::cin >> firmID2;
+                firmSystem->getCommonPatentCount(firmID1, firmID2);
                 break;
             }
             case 0: {

@@ -21,6 +21,7 @@ public:
     virtual void addPatent(Patent& patent) = 0;
     virtual void removePatent(const std::string& patentID) = 0;
     virtual const Patent getPatent(const std::string& patentID) const = 0;
+    virtual std::vector<std::string> getPatentIDs() const = 0;
     virtual std::vector<Patent> searchPatent(const std::string& keyword) const = 0;
     virtual std::vector<Patent> toVector() const = 0;
     virtual ~IFirm() {}
@@ -91,7 +92,7 @@ public:
         std::vector<Patent> results;
         for (auto current = patents.getHead(); current != nullptr; current = current->next) {
             Patent p = current->data;
-            std::cout << p.getTitle() << std::endl;
+            // std::cout << p.getTitle() << std::endl;
             if (matchKMP(keyword, p.getTitle()) != -1) {
                 results.push_back(p);
             }
@@ -103,6 +104,14 @@ public:
         std::vector<Patent> res;
         for (auto current = patents.getHead(); current != nullptr; current = current->next) {
             res.push_back(current->data);
+        }
+        return res;
+    }
+
+    std::vector<std::string> getPatentIDs() const override {
+        std::vector<std::string> res;
+        for (auto current = patents.getHead(); current != nullptr; current = current->next) {
+            res.push_back(current->data.getPatentID());
         }
         return res;
     }
@@ -178,6 +187,14 @@ public:
         return res;
     }
 
+    std::vector<std::string> getPatentIDs() const override {
+        std::vector<std::string> res;
+        for (size_t i = 0; i < patents.size(); ++i) {
+            res.push_back(patents[i].getPatentID());
+        }
+        return res;
+    }
+
     ~FirmVector() = default;
 };
 
@@ -186,7 +203,7 @@ private:
     std::string firmID;
     std::string firmName;
     int patentCount;
-    std::unordered_map<std::string, Patent> patents;
+    std::map<std::string, Patent> patents;
 
 public:
     FirmMap() : patentCount(0) {}
@@ -247,6 +264,14 @@ public:
         std::vector<Patent> res;
         for (const auto& pair : patents) {
             res.push_back(pair.second);
+        }
+        return res;
+    }
+
+    std::vector<std::string> getPatentIDs() const override {
+        std::vector<std::string> res;
+        for (const auto& pair : patents) {
+            res.push_back(pair.first);
         }
         return res;
     }

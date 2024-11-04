@@ -6,6 +6,7 @@
 #include <sstream>
 #include <map>
 #include <list>
+#include <set>
 #include "firm.hpp"
 #include "utils.hpp"
 #include "template/stack_template.hpp"
@@ -36,7 +37,8 @@ public:
     virtual bool changeApplicantInfo(Patent& patent) = 0;
 
     /* --------------------------------- matrix --------------------------------- */
-    virtual std::vector<std::vector<int>> toMatrix() = 0;
+    virtual std::vector<std::vector<int>> toSparseMatrix() = 0;
+    virtual int getCommonPatentCount(const std::string& firmID1, const std::string& firmID2) = 0;
 
     /* --------------------------------- display -------------------------------- */
     virtual void displayFirm(const std::string& firmID) const = 0;
@@ -272,14 +274,18 @@ public:
 
 class FirmSystemMap : public BaseFirmSystem {
 private:
-    std::unordered_map<std::string, std::shared_ptr<IFirm>> fs;
+    std::map<std::string, std::shared_ptr<IFirm>> fs;
     FirmType firmType;
     LinkedListQueue<Patent> applQueue;
     LinkedListStack<std::string> allHistory; // 这个历史记录需要思考，是不是应该保存操作？
     LinkedListStack<Patent> historyStack;
     LinkedListQueue<Patent> rejQueue;
     LinkedListStack<std::string> rejHistory;
-    std::unordered_map<std::string, std::vector<std::string>> firmApplCount;
+    std::map<std::string, std::vector<std::string>> firmApplCount;
+
+    std::map<std::string, int> firmIndex;
+    std::map<std::string, int> patentIndex;
+    std::vector<std::vector<int>> commonPatentMatrix;
 
 public:
     FirmSystemMap(FirmType type) 
@@ -326,7 +332,7 @@ public:
             std::cerr << "Firm not found." << std::endl;
             std::cerr << "Add new firm to Firm System, new FirmID: " << firmID << std::endl;
             addFirm(firmID, "New Firm");
-            addPatentFirm(firmID, patent);
+            addPatentFirm(firmID, patent); // 只会执行一次前面的if
         }
     }
 
@@ -518,11 +524,11 @@ public:
     }
 
     void searchPatentFirms(const std::string& keyword) override {
-        for (const auto& pair : fs) {
-            std::vector<Patent> results = pair.second->searchPatent(keyword);
+        for (const auto& firm : fs) {
+            std::vector<Patent> results = firm.second->searchPatent(keyword);
             if (results.size() > 0) {
                 displayLine(2);
-                std::cout << "Firm ID: " << pair.second->getFirmID() << std::endl;
+                std::cout << "Firm ID: " << firm.second->getFirmID() << std::endl;
                 std::cout << "Number of Patents: " << results.size() << std::endl;
                 displayTitle();
                 for (const auto& patent : results) {
@@ -530,60 +536,113 @@ public:
                 }
             }
         }
-    }    
+    }
 
-    std::vector<std::vector<int>> toMatrix() override {
-        // Create a matrix to represent relationships between firms and patents.
-        // The matrix will have rows representing firms and columns representing patents.
-        // For simplicity, the value at matrix[i][j] will be 1 if firm i has patent j, otherwise 0.
+    std::vector<std::vector<int>> toSparseMatrix() override {
+        std::vector<std::string> firmIDs;
+        std::vector<std::string> patentIDs;
 
-        // Step 1: Create maps to assign index to firm and patent IDs.
-        std::map<std::string, int> firmIndexMap;
-        std::map<std::string, int> patentIndexMap;
-
-        int firmIndex = 0;
-        int patentIndex = 0;
-
-        // Step 2: Assign an index to each firm, ensuring firms are ordered by their IDs.
+        std::set<std::string> uniquePatentIDs;
         for (const auto& pair : fs) {
-            firmIndexMap[pair.first] = firmIndex++;
-        }
-
-        // Step 3: Assign an index to each unique patent ID, ensuring patents are ordered by their IDs.
-        for (const auto& pair : fs) {
-            const auto& firm = pair.second;
-            const auto& patents = firm->toVector();
-            for (const auto& patent : patents) {
-                if (patentIndexMap.find(patent.getPatentID()) == patentIndexMap.end()) {
-                    patentIndexMap[patent.getPatentID()] = patentIndex++;
+            firmIDs.push_back(pair.first);
+            const auto& patents = pair.second->getPatentIDs();
+            for (const auto& patentID : patents) {
+                if (uniquePatentIDs.insert(patentID).second) {
+                    patentIDs.push_back(patentID);
                 }
             }
         }
 
-        // Step 4: Initialize the matrix with zeros.
-        std::vector<std::vector<int>> matrix(firmIndexMap.size(), std::vector<int>(patentIndexMap.size(), 0));
+        std::sort(patentIDs.begin(), patentIDs.end());
 
-        // Step 5: Fill the matrix with relationships.
+        // firm index mapping
+        for (size_t i = 0; i < firmIDs.size(); ++i) {
+            firmIndex[firmIDs[i]] = i;
+        }
+
+        // patent index mapping
+        for (size_t i = 0; i < patentIDs.size(); ++i) {
+            patentIndex[patentIDs[i]] = i;
+        }
+
+        std::vector<std::vector<int>> sparseMatrix(firmIDs.size(), std::vector<int>(patentIDs.size(), 0));
         for (const auto& pair : fs) {
-            int rowIndex = firmIndexMap[pair.first];
-            const auto& firm = pair.second;
-            const auto& patents = firm->toVector();
-            for (const auto& patent : patents) {
-                int columnIndex = patentIndexMap[patent.getPatentID()];
-                matrix[rowIndex][columnIndex] = 1;
+            const auto& firmID = pair.first;
+            const auto& patents = pair.second->getPatentIDs();
+            for (const auto& patentID : patents) {
+                sparseMatrix[firmIndex[firmID]][patentIndex[patentID]] = 1;
             }
         }
 
-        // Step 6: Print the matrix.
-        std::cout << "Matrix representation of firms and patents:" << std::endl;
-        for (const auto& row : matrix) {
-            for (const auto& val : row) {
-                std::cout << val << " ";
+        // 下面只是展示效果，实际都是用 OrthList<int> 来处理
+
+        // displatMatrix(patentIDs, firmIDs, sparseMatrix);
+
+        OrthList<int> olMatrix(sparseMatrix);
+
+        displayLine(2);
+        olMatrix.printMatrix();
+        displayLine(2);
+        
+
+        OrthList<int> olMatrixT = olMatrix.transpose();
+
+        displayLine(2);
+        olMatrixT.printMatrix();
+        displayLine(2);
+
+        std::vector<std::vector<int>> transformedMatrix = olMatrix.transformTo2DArray();
+
+        OrthList<int> result = olMatrix.multiplyMatrix(olMatrixT);
+
+        displayLine(2);
+        result.printMatrix();
+        displayLine(2);
+
+        commonPatentMatrix = result.transformTo2DArray();
+
+        // displatMatrix(patentIDs, firmIDs, commonPatentMatrix);
+
+        return sparseMatrix;
+    }
+
+    int getCommonPatentCount(const std::string& firmID1, const std::string& firmID2) override {
+
+        int idx_1 = firmIndex[firmID1];
+        int idx_2 = firmIndex[firmID2];
+        // std::cout << idx_1 << " " << idx_2 << std::endl;
+
+        int commonPatentCount = commonPatentMatrix[idx_1][idx_2];
+        std::cout << "Common Patent Count: " << commonPatentCount << std::endl << std::endl;
+        return commonPatentCount;
+    }
+
+    void displatMatrix(std::__1::vector<std::__1::string> &patentIDs, std::__1::vector<std::__1::string> &firmIDs, std::__1::vector<std::__1::vector<int>> &sparseMatrix)
+    {
+        // Display matrix
+        std::cout << "Firms-Patents Matrix:" << std::endl;
+        std::cout << "      ";
+        for (size_t j = 1; j < patentIDs.size() + 1; ++j)
+        {
+            std::cout << (j / 10);
+        }
+        std::cout << std::endl;
+        std::cout << "      ";
+        for (size_t j = 1; j < patentIDs.size() + 1; ++j)
+        {
+            std::cout << (j % 10);
+        }
+        std::cout << std::endl << std::endl;
+
+        for (size_t i = 0; i < firmIDs.size(); ++i)
+        {
+            std::cout << firmIDs[i] << "  ";
+            for (size_t j = 0; j < patentIDs.size(); ++j)
+            {
+                std::cout << sparseMatrix[i][j] << "";
             }
             std::cout << std::endl;
         }
-
-        return matrix;
     }
 
     void displayFirmsID() const override {

@@ -25,6 +25,7 @@ public:
     OrthList<T> multiplyMatrix(const OrthList<T>& mat);
     vector<vector<T>> transformTo2DArray();
     void printMatrix();
+    void printSparseMatrix();
     void makeEmpty();
 };
 
@@ -86,7 +87,7 @@ void OrthList<T>::insertNode(int row, int col, T value) {
 //             std::swap(tmp->row, tmp->col);
 //             std::swap(tmp->rowNext, tmp->colNext);
 //         }
-//         // 新的列指针指向原行的第一个非零元素
+//         // 新的列��针指向原行的第一个非零元素
 //         std::swap(rowDummy[i].rowNext, rowDummy[i].colNext);
 //     }
 
@@ -186,6 +187,17 @@ void OrthList<T>::printMatrix() {
             std::cout << result[i][j] << " ";
         }
         std::cout << std::endl;
+    }
+}
+
+template<typename T>
+void OrthList<T>::printSparseMatrix() {
+    for (size_t i = 0; i < rowDummy.size(); i++) {
+        OrthAtom* cycleIter = rowDummy[i].rowNext;
+        while (cycleIter != nullptr) {
+            std::cout << "Row: " << cycleIter->row << ", Col: " << cycleIter->col << ", Value: " << cycleIter->ele << std::endl;
+            cycleIter = cycleIter->rowNext;
+        }
     }
 }
 

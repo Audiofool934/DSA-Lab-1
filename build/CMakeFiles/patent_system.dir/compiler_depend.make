@@ -992,11 +992,14 @@ CMakeFiles/patent_system.dir/src/main.cpp.o: /Users/audiofool/Desktop/Projects/D
   /Users/audiofool/Desktop/Projects/DSA-Lab/include/template/matrix_template.hpp \
   /Users/audiofool/Desktop/Projects/DSA-Lab/include/template/queue_template.hpp \
   /Users/audiofool/Desktop/Projects/DSA-Lab/include/template/stack_template.hpp \
+  /Users/audiofool/Desktop/Projects/DSA-Lab/include/template/triplet_template.hpp \
   /Users/audiofool/Desktop/Projects/DSA-Lab/include/template/vector_template.hpp \
   /Users/audiofool/Desktop/Projects/DSA-Lab/include/utils.hpp
 
 
 /Users/audiofool/Desktop/Projects/DSA-Lab/include/utils.hpp:
+
+/Users/audiofool/Desktop/Projects/DSA-Lab/include/template/triplet_template.hpp:
 
 /Users/audiofool/Desktop/Projects/DSA-Lab/include/template/stack_template.hpp:
 

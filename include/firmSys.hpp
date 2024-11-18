@@ -36,7 +36,7 @@ public:
     virtual void processApplicants() = 0;
     virtual bool changeApplicantInfo(Patent& patent) = 0;
 
-    /* --------------------------------- matrix --------------------------------- */
+    /* ------------------------------ sparse matrix ----------------------------- */
     virtual std::vector<std::vector<int>> toSparseMatrix() = 0;
     virtual int getCommonPatentCount(const std::string& firmID1, const std::string& firmID2) = 0;
 
@@ -586,11 +586,19 @@ public:
         OrthList<int> olMatrix(sparseMatrix);
 
         displayLine(2);
+        olMatrix.printSparseMatrix();
+        displayLine(2);
+
+        displayLine(2);
         olMatrix.printMatrix();
         displayLine(2);
         
 
         OrthList<int> olMatrixT = olMatrix.transpose();
+        
+        displayLine(2);
+        olMatrixT.printSparseMatrix();
+        displayLine(2);
 
         displayLine(2);
         olMatrixT.printMatrix();
@@ -622,7 +630,7 @@ public:
         return commonPatentCount;
     }
 
-    void displatMatrix(std::__1::vector<std::__1::string> &patentIDs, std::__1::vector<std::__1::string> &firmIDs, std::__1::vector<std::__1::vector<int>> &sparseMatrix)
+    void displayMatrix(std::__1::vector<std::__1::string> &patentIDs, std::__1::vector<std::__1::string> &firmIDs, std::__1::vector<std::__1::vector<int>> &sparseMatrix)
     {
         // Display matrix
         std::cout << "Firms-Patents Matrix:" << std::endl;

@@ -524,9 +524,11 @@ public:
     }
 
     void searchPatentFirms(const std::string& keyword) override {
+        bool found = false;
         for (const auto& firm : fs) {
             std::vector<Patent> results = firm.second->searchPatent(keyword);
             if (results.size() > 0) {
+                found = true;
                 displayLine(2);
                 std::cout << "Firm ID: " << firm.second->getFirmID() << std::endl;
                 std::cout << "Number of Patents: " << results.size() << std::endl;
@@ -535,6 +537,9 @@ public:
                     patent.display();
                 }
             }
+        }
+        if (!found) {
+            std::cout << "No patents found for the keyword: " << keyword << std::endl;
         }
     }
 

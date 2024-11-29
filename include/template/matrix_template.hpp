@@ -55,20 +55,23 @@ void OrthList<T>::insertNode(int row, int col, T value) {
     OrthAtom* colIter = &colDummy[col];
     
     // 找到非空元素的行、列位置
-    while (rowIter->rowNext && rowIter->rowNext->col < col) rowIter = rowIter->rowNext;
-    while (colIter->colNext && colIter->colNext->row < row) colIter = colIter->colNext;
+    while (rowIter->rowNext && rowIter->rowNext->col < col) 
+        rowIter = rowIter->rowNext;
+    while (colIter->colNext && colIter->colNext->row < row) 
+        colIter = colIter->colNext;
 
     OrthAtom* newNode = new OrthAtom();
+
     // 0-based index
     newNode->row = row;
     newNode->col = col;
     newNode->ele = value;
 
-    // 插入到行链表中
+    // 插入到行链表
     newNode->rowNext = rowIter->rowNext;
     rowIter->rowNext = newNode;
 
-    // 插入到列链表中
+    // 插入到列链表
     newNode->colNext = colIter->colNext;
     colIter->colNext = newNode;
 }
@@ -118,7 +121,7 @@ template<typename T>
 OrthList<T> OrthList<T>::multiplyMatrix(const OrthList<T>& otherMatrix) {
 
     if (colDummy.size() != otherMatrix.rowDummy.size()) {
-        throw std::invalid_argument("Matrix dimensions do not match for multiplication.");
+        throw std::invalid_argument("无法相乘！请检查矩阵维数");
     }
 
     OrthList<T> resultMatrix;

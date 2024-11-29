@@ -19,8 +19,8 @@ public:
     TripletList();
     TripletList(const vector<vector<T>> &inArray);
     vector<Triplet> getTriblets() { return triplets; }
-    TripletList<T> transpose();
-    TripletList<T> multiplyMatrix(const TripletList<T>& mat);
+    void transpose();
+    void multiplyMatrix(const TripletList<T>& mat);
     vector<vector<T>> transformTo2DArray();
     void printMatrix();
     void makeEmpty();
@@ -41,33 +41,36 @@ TripletList<T>::TripletList(const vector<vector<T>>& inArray) : numRows(inArray.
 }
 
 template<typename T>
-TripletList<T> TripletList<T>::transpose() {
-    TripletList<T> transposedMatrix;
-    transposedMatrix.numRows = numCols;
-    transposedMatrix.numCols = numRows;
-
-    for (const auto& triplet : triplets) {
-        transposedMatrix.triplets.emplace_back(triplet.col, triplet.row, triplet.value);
+void TripletList<T>::transpose() {
+    for (auto& triplet : triplets) {
+        std::swap(triplet.row, triplet.col);
     }
 
-    return transposedMatrix;
+    std::sort(triplets.begin(), triplets.end(), [](const Triplet& a, const Triplet& b) {
+        if (a.row == b.row) {
+            return a.col < b.col;
+        }
+        return a.row < b.row;
+    });
+
+    std::swap(numRows, numCols);
 }
 
 template<typename T>
-TripletList<T> TripletList<T>::multiplyMatrix(const TripletList<T>& otherMatrix) {
+void TripletList<T>::multiplyMatrix(const TripletList<T>& otherMatrix) {
     if (numCols != otherMatrix.numRows) {
         throw std::invalid_argument("Matrix dimensions do not match for multiplication.");
     }
 
-    TripletList<T> resultMatrix;
-    resultMatrix.numRows = numRows;
-    resultMatrix.numCols = otherMatrix.numCols;
+    TripletList<T> result;
+    result.numRows = numRows;
+    result.numCols = otherMatrix.numCols;
 
     for (const auto& tripletA : triplets) {
         for (const auto& tripletB : otherMatrix.triplets) {
             if (tripletA.col == tripletB.row) {
                 bool found = false;
-                for (auto& tripletC : resultMatrix.triplets) {
+                for (auto& tripletC : result.triplets) {
                     if (tripletC.row == tripletA.row && tripletC.col == tripletB.col) {
                         tripletC.value += tripletA.value * tripletB.value;
                         found = true;
@@ -75,13 +78,13 @@ TripletList<T> TripletList<T>::multiplyMatrix(const TripletList<T>& otherMatrix)
                     }
                 }
                 if (!found) {
-                    resultMatrix.triplets.emplace_back(tripletA.row, tripletB.col, tripletA.value * tripletB.value);
+                    result.triplets.emplace_back(tripletA.row, tripletB.col, tripletA.value * tripletB.value);
                 }
             }
         }
     }
 
-    return resultMatrix;
+    *this = result;
 }
 
 template<typename T>

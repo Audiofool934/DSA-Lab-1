@@ -630,7 +630,7 @@ public:
         return commonPatentCount;
     }
 
-    void displayMatrix(std::__1::vector<std::__1::string> &patentIDs, std::__1::vector<std::__1::string> &firmIDs, std::__1::vector<std::__1::vector<int>> &sparseMatrix)
+    void displayMatrix(std::vector<std::string> &patentIDs, std::vector<std::string> &firmIDs, std::vector<std::vector<int>> &sparseMatrix)
     {
         // Display matrix
         std::cout << "Firms-Patents Matrix:" << std::endl;
